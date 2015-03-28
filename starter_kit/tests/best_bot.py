@@ -39,21 +39,22 @@ class TestPiratesBot(unittest.TestCase):
     def setUp(self):
         self.myBot = "myBot.py"
 
-    def myBot_vs_Other(self, myBotName, otherBotName):
+    def myBot_vs_Other(self, myBotName, otherBotName, map):
         # test my bot against demo bot
         cmd =  os.getcwd() + '\\run.bat'
         myBot = ".\\bots\\" + myBotName
         otherBot = ".\\bots\\" + otherBotName
         folder = os.getcwd() + "\\..\\"
+        mapfile = os.getcwd() + "\\maps\\" + map
 
         filename = myBotName.rsplit(".")[0] + "_" + otherBotName.rsplit(".")[0]
-        f_out_name = filename + "_out.txt"
-        f_err_name = filename + "_err.txt"
+        f_out_name = ".\\logs\\" + filename + "_out.txt"
+        f_err_name = ".\\logs\\" + filename + "_err.txt"
         f_out = open(f_out_name, 'w')
         f_err = open(f_err_name, 'w')
 
-        params = [cmd, myBot, otherBot]
-
+        params = [cmd, myBot, otherBot, mapfile, "--nolaunch" ]
+        print params
         with open(f_out_name, 'w') as outfile:
             with open(f_err_name, 'w') as errfile:
                 subprocess.call(subprocess.list2cmdline(params), cwd=folder, stdout=outfile, stderr=errfile)
@@ -70,18 +71,19 @@ class TestPiratesBot(unittest.TestCase):
 
     def test_find_best(self):
         files = [file for file in os.listdir(".\\bots\\") if file.endswith(".py") ]
-        files.append("demoBot1.pyc")
-        files.append("demoBot2.pyc")
-        files.append("demoBot3.pyc")
-        files.append("demoBot4.pyc")
+        mapfiles = [file for file in os.listdir(".\\maps\\") if file.endswith(".map")]
 
-        for candidate in files:
+
+        for candidate in ["my_bot.py"]:
             print "Candidate {0}\n*****************".format(candidate)
             wins = 0
             for opponent in files:
-                win = self.myBot_vs_Other(candidate, opponent)
-                print "Candidate {0} vs {1} - {2}".format(candidate, opponent, win)
-                wins += win
+                if opponent not in ["strategy.py", "my_bot.py"]:
+                    for map in mapfiles:
+                        win = self.myBot_vs_Other(candidate, opponent, map)
+                        win = self.myBot_vs_Other(opponent, candidate, map)
+                        print "Candidate {0} vs {1} - {2} on map {3}".format(candidate, opponent, win, map)
+                        wins += win
             print candidate + " got " + str(wins) + "wins"
 
 
