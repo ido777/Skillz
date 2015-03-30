@@ -54,7 +54,7 @@ class TestPiratesBot(unittest.TestCase):
         f_err = open(f_err_name, 'w')
 
         params = [cmd, myBot, otherBot, mapfile, "--nolaunch" ]
-        print params
+        #print params
         with open(f_out_name, 'w') as outfile:
             with open(f_err_name, 'w') as errfile:
                 subprocess.call(subprocess.list2cmdline(params), cwd=folder, stdout=outfile, stderr=errfile)
@@ -75,14 +75,14 @@ class TestPiratesBot(unittest.TestCase):
 
 
         for candidate in ["my_bot.py"]:
-            print "Candidate {0}\n*****************".format(candidate)
+            print "Candidate {0}\n 2= Win on both sides, 1= Win one side, 0 = Lose\n*****************".format(candidate)
             wins = 0
             for opponent in files:
                 if opponent not in ["strategy.py", "my_bot.py"]:
                     for map in mapfiles:
                         win = self.myBot_vs_Other(candidate, opponent, map)
-                        win = self.myBot_vs_Other(opponent, candidate, map)
-                        print "Candidate {0} vs {1} - {2} on map {3}".format(candidate, opponent, win, map)
+                        win = win + self.myBot_vs_Other(opponent, candidate, map)
+                        print "{2} Candidate {0} vs {1} -  on map {3}".format(candidate, opponent, win, map)
                         wins += win
             print candidate + " got " + str(wins) + "wins"
 
