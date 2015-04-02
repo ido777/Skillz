@@ -39,15 +39,16 @@ class TestPiratesBot(unittest.TestCase):
     def setUp(self):
         self.myBot = "myBot.py"
 
-    def myBot_vs_Other(self, myBotName, otherBotName, map):
+    def myBot_vs_Other(self, my, BotName, otherBotName, map):
         # test my bot against demo bot
         cmd =  os.getcwd() + '\\run.bat'
-        myBot = ".\\bots\\" + myBotName
+        #cmd = os.getcwd() +  -g 9improved_challenge  --loadtime 10000 --turntime  1000000 -e -E -d --debug_in_replay --engine_seed 42 --player_seed 42 --log_dir "game_logs" --map_file "..\maps\default_map.map"   "..\bots\my_bot.py"  "..\bots\improved9.py"
+        myBot = ".\\bots\\" + BotName
         otherBot = ".\\bots\\" + otherBotName
         folder = os.getcwd() + "\\..\\"
         mapfile = os.getcwd() + "\\maps\\" + map
 
-        filename = myBotName.rsplit(".")[0] + "_" + otherBotName.rsplit(".")[0]
+        filename = BotName.rsplit(".")[0] + "_" + otherBotName.rsplit(".")[0]+ "_" + map
         f_out_name = ".\\logs\\" + filename + "_out.txt"
         f_err_name = ".\\logs\\" + filename + "_err.txt"
         f_out = open(f_out_name, 'w')
@@ -59,13 +60,14 @@ class TestPiratesBot(unittest.TestCase):
             with open(f_err_name, 'w') as errfile:
                 subprocess.call(subprocess.list2cmdline(params), cwd=folder, stdout=outfile, stderr=errfile)
 
-        #self.assertTrue(myBotName.rsplit(".")[0] in tail(f_out_name,1)[0], "Oh oh We lost this game")
+        #self.assertTrue(BotName.rsplit(".")[0] in tail(f_out_name,1)[0], "Oh oh We lost this game")
         #self.assertTrue("player 1" in tail(f_out_name,1)[0], "Oh oh We lost this game")
         #self.assertTrue(file_len(f_err_name) == 1, "One bot had en error ")
-        if "player 1" in tail(f_out_name,1)[0]:
-            return 1
+        if my == BotName and "player 1" in tail(f_out_name,1)[0] \
+            or my == otherBotName and "player 2" in tail(f_out_name,1)[0]:
+                return { 'score':  tail(f_out_name,2)[0], 'win' : 1 }
         else:
-            return 0
+                return { 'score':  tail(f_out_name,2)[0], 'win' : 0 }
 
 
 
@@ -73,16 +75,21 @@ class TestPiratesBot(unittest.TestCase):
         files = [file for file in os.listdir(".\\bots\\") if file.endswith(".py") ]
         mapfiles = [file for file in os.listdir(".\\maps\\") if file.endswith(".map")]
 
-
-        for candidate in ["my_bot.py"]:
+        candidates = ["improved9.py"]
+        for candidate in candidates:
             print "Candidate {0}\n 2= Win on both sides, 1= Win one side, 0 = Lose\n*****************".format(candidate)
             wins = 0
             for opponent in files:
-                if opponent not in ["strategy.py", "my_bot.py"]:
+                if opponent not in ["strategy.py", candidate]:
                     for map in mapfiles:
-                        win = self.myBot_vs_Other(candidate, opponent, map)
-                        win = win + self.myBot_vs_Other(opponent, candidate, map)
-                        print "{2} Candidate {0} vs {1} -  on map {3}".format(candidate, opponent, win, map)
+                        result1 = self.myBot_vs_Other(candidate ,candidate, opponent, map)
+                        result2 = self.myBot_vs_Other(candidate, opponent, candidate, map)
+                        win = result1['win'] + result2['win']
+
+                        print "{2} Candidate {0} vs {1} -  on map {3}\n****************************".format(candidate, opponent, win, map)
+                        print "({} vs {}) - : {}".format(candidate, opponent,result1['score'])
+                        print "({} vs {}) - : {}".format(opponent, candidate ,result2['score'])
+
                         wins += win
             print candidate + " got " + str(wins) + "wins"
 

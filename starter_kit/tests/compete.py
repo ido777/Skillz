@@ -87,8 +87,8 @@ class TestPiratesBot(unittest.TestCase):
         self.myBot_vs_Other("demoBot6.py", "demoBot6.py")
 
     '''
-    def test_My_vs_Demo9(self):
-        self.myBot_vs_Other("my_bot.py", "demoBot9.py")
+    def test_My_vs_improved9(self):
+        self.myBot_vs_Other("my_bot.py", "improved9.py")
 
     def test_Demo9_vs_My(self):
         self.myBot_vs_Other("my_bot.py", "demoBot9.py")
